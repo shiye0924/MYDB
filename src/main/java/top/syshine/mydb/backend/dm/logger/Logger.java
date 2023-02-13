@@ -1,33 +1,30 @@
-package top.syshine.mydb.backend.dm.pageCache;
+package top.syshine.mydb.backend.dm.logger;
 
-import top.syshine.mydb.backend.dm.page.Page;
 import top.syshine.mydb.backend.utils.Panic;
 import top.syshine.mydb.common.Error;
+import top.syshine.mydb.common.Parser;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
 /**
  * @Author: 石烨
- * @Date: 2023/02/11/17:55
- * @Description:
+ * @Date: 2023/02/13/12:23
+ * @Description:日志读写
  */
-public interface PageCache {
-    public static final int PAGE_SIZE = 1 << 13;
-
-    int newPage(byte[] initData);
-    Page getPage(int pgno) throws Exception;
+public interface Logger {
+    void log(byte[] data) throws IOException;
+    void truncate(long x) throws Exception;
+    byte[] next();
+    void rewind();
     void close();
-    void release(Page page);
 
-    void truncateByBgno(int maxPgno);
-    int getPageNumber();
-    void flushPage(Page pg);
-
-    public static PageCacheImpl create(String path, long memory) {
-        File f = new File(path+PageCacheImpl.DB_SUFFIX);
+    public static Logger create(String path) {
+        File f = new File(path+LoggerImpl.LOG_SUFFIX);
         try {
             if(!f.createNewFile()) {
                 Panic.panic(Error.FileExistsException);
@@ -47,11 +44,21 @@ public interface PageCache {
         } catch (FileNotFoundException e) {
             Panic.panic(e);
         }
-        return new PageCacheImpl(raf, fc, (int)memory/PAGE_SIZE);
+
+        ByteBuffer buf = ByteBuffer.wrap(Parser.int2Byte(0));
+        try {
+            fc.position(0);
+            fc.write(buf);
+            fc.force(false);
+        } catch (IOException e) {
+            Panic.panic(e);
+        }
+
+        return new LoggerImpl(raf, fc, 0);
     }
 
-    public static PageCacheImpl open(String path, long memory) {
-        File f = new File(path+PageCacheImpl.DB_SUFFIX);
+    public static Logger open(String path) {
+        File f = new File(path+LoggerImpl.LOG_SUFFIX);
         if(!f.exists()) {
             Panic.panic(Error.FileNotExistsException);
         }
@@ -67,6 +74,10 @@ public interface PageCache {
         } catch (FileNotFoundException e) {
             Panic.panic(e);
         }
-        return new PageCacheImpl(raf, fc, (int)memory/PAGE_SIZE);
+
+        LoggerImpl lg = new LoggerImpl(raf, fc);
+        lg.init();
+
+        return lg;
     }
 }
