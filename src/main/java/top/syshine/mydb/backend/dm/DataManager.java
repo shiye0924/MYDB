@@ -21,7 +21,7 @@ public interface DataManager {
         return dm;
     }
 
-    public static DataManager open(String path, long mem, TransactionManger tm) {
+    public static DataManager open(String path, long mem, TransactionManger tm) throws Exception {
         PageCache pc = PageCache.open(path, mem);
         Logger lg = Logger.open(path);
         DataManagerImpl dm = new DataManagerImpl(pc, lg, tm);

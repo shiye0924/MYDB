@@ -116,7 +116,7 @@ public class LoggerImpl implements Logger{
      * 其中position是当前日志文件读到的位置偏移
      * @return
      */
-    private byte[] interNext() throws IOException {
+    private byte[] internNext() throws IOException {
         if (position + OF_DATA >= fileSize){
             return null;
         }
@@ -155,7 +155,7 @@ public class LoggerImpl implements Logger{
         rewind();
         int xCheck = 0;
         while (true){
-            byte[] log = interNext();
+            byte[] log = internNext();
             if (log == null){
                 break;
             }
@@ -192,21 +192,38 @@ public class LoggerImpl implements Logger{
 
     @Override
     public void truncate(long x) throws Exception {
-
+        lock.lock();
+        try {
+            fc.truncate(x);
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
-    public byte[] next() {
-        return new byte[0];
+    public byte[] next() throws IOException {
+        lock.lock();
+        try {
+            byte[] log = internNext();
+            if(log == null) return null;
+            return Arrays.copyOfRange(log, OF_DATA, log.length);
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
     public void rewind() {
-
+        position = 4;
     }
 
     @Override
     public void close() {
-
+        try {
+            fc.close();
+            file.close();
+        } catch(IOException e) {
+            Panic.panic(e);
+        }
     }
 }

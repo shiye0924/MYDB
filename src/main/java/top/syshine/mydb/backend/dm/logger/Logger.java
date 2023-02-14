@@ -19,7 +19,7 @@ import java.nio.channels.FileChannel;
 public interface Logger {
     void log(byte[] data) throws IOException;
     void truncate(long x) throws Exception;
-    byte[] next();
+    byte[] next() throws IOException;
     void rewind();
     void close();
 
@@ -57,7 +57,7 @@ public interface Logger {
         return new LoggerImpl(raf, fc, 0);
     }
 
-    public static Logger open(String path) {
+    public static Logger open(String path) throws Exception {
         File f = new File(path+LoggerImpl.LOG_SUFFIX);
         if(!f.exists()) {
             Panic.panic(Error.FileNotExistsException);

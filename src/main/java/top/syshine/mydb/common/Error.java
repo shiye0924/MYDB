@@ -21,4 +21,9 @@ public class Error {
     public static final Exception MemTooSmallException = new RuntimeException("Memory too small!");
     public static final Exception DataTooLargeException = new RuntimeException("Data too large!");
     public static final Exception DatabaseBusyException = new RuntimeException("Database is busy!");
+
+    // vm
+    public static final Exception DeadlockException = new RuntimeException("Deadlock!");
+    public static final Exception ConcurrentUpdateException = new RuntimeException("Concurrent update issue!");
+    public static final Exception NullEntryException = new RuntimeException("Null entry!");
 }

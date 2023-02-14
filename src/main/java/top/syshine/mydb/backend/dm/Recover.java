@@ -11,6 +11,7 @@ import top.syshine.mydb.backend.tm.TransactionManger;
 import top.syshine.mydb.backend.utils.Panic;
 import top.syshine.mydb.common.Parser;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -39,7 +40,9 @@ public class Recover {
         byte[] oldRaw;
         byte[] newRaw;
     }
-    public static void recover(TransactionManger tm, Logger lg, PageCache pc) {
+    public static void recover(TransactionManger
+
+                                       tm, Logger lg, PageCache pc) throws IOException {
         System.out.println("Recovering...");
 
         lg.rewind();
@@ -74,7 +77,7 @@ public class Recover {
         System.out.println("Recovery Over.");
     }
 
-    private static void redoTranscations(TransactionManger tm, Logger lg, PageCache pc){
+    private static void redoTranscations(TransactionManger tm, Logger lg, PageCache pc) throws IOException {
         lg.rewind();
         while (true){
             byte[] log = lg.next();
@@ -95,7 +98,7 @@ public class Recover {
         }
     }
 
-    private static void undoTranscations(TransactionManger tm,Logger lg,PageCache pc){
+    private static void undoTranscations(TransactionManger tm,Logger lg,PageCache pc) throws IOException {
         Map<Long, List<byte[]>> logCache = new HashMap<>();
         lg.rewind();
         while (true){
