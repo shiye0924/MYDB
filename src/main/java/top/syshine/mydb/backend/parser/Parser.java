@@ -1,6 +1,7 @@
 package top.syshine.mydb.backend.parser;
 
-import top.guoziyang.mydb.backend.parser.statement.*;
+import top.syshine.mydb.backend.parser.statement.*;
+import top.syshine.mydb.common.Error;
 
 import java.util.ArrayList;
 import java.util.List;

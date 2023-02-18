@@ -1,5 +1,7 @@
 package top.syshine.mydb.backend.parser;
 
+import top.syshine.mydb.common.Error;
+
 public class Tokenizer {
     private byte[] stat;
     private int pos;
